@@ -1,0 +1,1 @@
+export const REVALIDATE_INTERVAL = 1000 * 10 * 60;

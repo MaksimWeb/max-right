@@ -16,12 +16,17 @@
   }
 }
 
+* {
+  margin: 0;
+  padding: 0;
+}
+
 body {
-  color: rgb(var(--foreground-rgb));
+  background: rgb(2, 0, 36);
   background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+    90deg,
+    rgba(2, 0, 36, 1) 0%,
+    rgba(69, 104, 220, 1) 0%,
+    rgba(176, 106, 179, 1) 100%
+  );
 }
