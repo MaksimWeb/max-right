@@ -1,14 +1,17 @@
-import type { InferGetStaticPropsType } from 'next';
+import type {
+  InferGetStaticPropsType,
+  NextApiRequest,
+  NextApiResponse,
+} from 'next';
 import type { Post } from '.';
 import { REVALIDATE_INTERVAL } from '@/utils';
 
 import { PostAuthor } from '../pages-lib/posts/post-author';
-import axios from 'axios';
-import { cookies } from 'next/dist/client/components/headers';
+import { getPost } from '@/lib';
 
 export default function PostDetailPage({
   post,
-}: InferGetStaticPropsType<typeof getStaticProps>) {
+}: InferGetStaticPropsType<typeof getServerSideProps>) {
   return (
     <div className='container py-12'>
       <div className='flex justify-between items-center w-full mb-14'>
@@ -24,36 +27,27 @@ export default function PostDetailPage({
   );
 }
 
-export async function getStaticPaths() {
-  const res = await fetch('http://localhost:3000/posts');
-  const posts: Post[] = await res.json();
+export async function getServerSideProps({
+  req,
+  res,
+  query,
+}: {
+  req: NextApiRequest;
+  res: NextApiResponse;
+  query: { slug: string };
+}) {
+  console.log(query);
 
-  const paths = posts.map((post) => ({ params: { slug: post.slug } }));
-
-  return { paths, fallback: 'blocking' };
-}
-
-export async function getStaticProps({ params }: any) {
-  if (!params?.slug) {
+  if (!query?.slug) {
     return {
       notFound: true,
       revalidate: REVALIDATE_INTERVAL,
     };
   }
 
-  let accessToken = '';
+  const cookie = req.headers['cookie'];
 
-  if (typeof window !== 'undefined') {
-    accessToken = JSON.parse(window.sessionStorage.get('auth'))?.accessToken;
-  }
-
-  const res = axios.get(
-    `http://localhost:3000/post-preview?type=${params.slug}`,
-    {
-      withCredentials: true,
-    }
-  );
-  const post: Post = (await res).data;
+  const post = await getPost(query.slug, cookie);
 
   if (!post) {
     return {
@@ -62,5 +56,5 @@ export async function getStaticProps({ params }: any) {
     };
   }
 
-  return { props: { post }, revalidate: REVALIDATE_INTERVAL };
+  return { props: { post: post } };
 }

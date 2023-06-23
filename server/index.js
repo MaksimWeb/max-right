@@ -106,17 +106,21 @@ app.post('/login', (req, res) => {
   db.collection('users')
     .findOne({ username, password })
     .then((result) => {
-      const accessToken = jwt.sign({ username }, SECRET, {
-        expiresIn: MAX_AGE,
-      });
+      let accessToken = '';
 
-      res.cookie('UserCookies', accessToken, {
-        httpOnly: true,
-        secure: true,
-        sameSite: 'strict',
-        maxAge: MAX_AGE,
-        path: '/',
-      });
+      if (result) {
+        accessToken = jwt.sign({ username }, SECRET, {
+          expiresIn: MAX_AGE,
+        });
+
+        res.cookie('UserCookies', accessToken, {
+          httpOnly: true,
+          secure: false,
+          sameSite: 'strict',
+          maxAge: MAX_AGE,
+          path: '/',
+        });
+      }
 
       res.status(200).json({ ...result, accessToken });
     })

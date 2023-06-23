@@ -36,22 +36,24 @@ export function Navbar() {
     login: string;
     password: string;
   }) => {
-    const res = await fetch('http://localhost:3000/login', {
+    const response = await fetch('http://localhost:3001/api/login', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         username: loginData.login,
         password: loginData.password,
       }),
     });
 
-    const userCredentials: IMessage & { accessToken: string } =
-      await res.json();
+    const userData = await response.json();
+
+    const userCredentials: IMessage & { accessToken: string } = userData;
 
     if (userCredentials.accessToken) {
       setMessage(userCredentials);
       setShowModal(false);
       setConnected(true);
+    } else {
+      alert('Unauthorized');
     }
   };
 
